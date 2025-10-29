@@ -6,14 +6,14 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onClearChat }) => {
   return (
-    <header className="bg-white shadow-sm p-3 border-b border-[#D3CBB8]">
+    <header className="bg-white shadow-sm p-1 border-b border-[#D3CBB8]">
       <div className="max-w-6xl mx-auto">
         {/* Layout más compacto */}
         <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 xs:gap-0">
           
           {/* Logo y título - Más compacto */}
           <div className="flex items-center gap-2 justify-center xs:justify-start">
-            <div className="bg-[#8B4513] text-white p-1.5 rounded-lg">
+            <div className="bg-[#8B4513] text-white p-0.5 rounded-lg">
               <span className="text-lg">📚</span>
             </div>
             <div className="text-center xs:text-left">
