@@ -31,6 +31,7 @@ const App: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState<boolean>(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,6 +59,25 @@ const App: React.FC = () => {
       console.error("Failed to save chat history to localStorage", e);
     }
   }, [messages]);
+
+  // ✅ NUEVA FUNCIÓN: Limpiar conversación
+  const handleClearChat = useCallback(() => {
+    setMessages([initialWelcomeMessage]);
+    localStorage.removeItem(CHAT_HISTORY_KEY);
+    setShowClearConfirm(false);
+    // También podrías reinicializar el servicio de chat si es necesario
+    initializeChat([initialWelcomeMessage]);
+  }, []);
+
+  // ✅ NUEVA FUNCIÓN: Mostrar confirmación
+  const handleClearClick = useCallback(() => {
+    if (messages.length <= 1) {
+      // Si solo hay el mensaje de bienvenida, limpiar directamente
+      handleClearChat();
+    } else {
+      setShowClearConfirm(true);
+    }
+  }, [messages.length, handleClearChat]);
 
   const handleSendMessage = useCallback(async (userInput: string) => {
     if (!userInput.trim() || isLoading) return;
@@ -100,7 +120,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[#FDF6E3] text-[#586E75]">
-      <Header />
+      <Header onClearChat={handleClearClick} /> {/* ✅ Pasar función al Header */}
       <main className="flex-1 overflow-y-auto p-4 md:p-6">
         <div className="max-w-3xl mx-auto">
           <ChatInterface messages={messages} />
@@ -108,6 +128,33 @@ const App: React.FC = () => {
         </div>
       </main>
       <MessageInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+      
+      {/* ✅ Modal de confirmación para limpiar chat */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-semibold mb-2">¿Limpiar conversación?</h3>
+            <p className="text-gray-600 mb-4">
+              Se eliminará todo el historial del chat. Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleClearChat}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 text-center" role="alert">
           <p>{error}</p>
